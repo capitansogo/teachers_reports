@@ -7,20 +7,6 @@ from docx.shared import Pt, Cm
 
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
-data = [
-    ['02.12', 'Сценарные языки программирования (ИСиТ)', 'ЦПИ-31', 8, 'Лаб.'],
-    ['04.12', 'Работа с дипломниками', 'ДСИТ-47', 4],
-    ['05.12', 'Работа с дипломниками', 'ДСИТ-47', 4],
-    ['17.12', 'Работа с дипломниками', 'ДСИТ-47', 4],
-    ['09.12', 'Сценарные языки программирования (ИСиТ)', 'ЦПИ-31', 8, 'Лаб.'],
-    ['13.12', 'Работа с дипломниками', 'ДСИТ-47', 4],
-    ['14.12', 'Работа с дипломниками', 'ДСИТ-47', 4],
-    ['16.12', 'Сценарные языки программирования (ИСиТ)', 'ЦПИ-31', 8, 'Лаб.'],
-    ['21.12', 'Работа с дипломниками', 'ДСИТ-47', 4],
-    ['23.12', 'Сценарные языки программирования (ИСиТ)', 'ЦПИ-31', 8, 'Лаб.'],
-
-]
-
 
 def lengs(string):
     one = '_' * ((40 - len(string)) // 2)
@@ -174,11 +160,10 @@ def create_report(fio, dolzhnost, podrazdelenie, data, date_start, date_end, les
     for cell in last_row.cells:
         cell.borders = None
 
-    print(data)
     sum = 0
     for i in range(len(data)):
         if data[i][3] is not None:
-            sum += data[i][3]
+            sum += int(data[i][3])
 
     table.cell(len(data) + 1, 3).text = str(sum)
     cell = table.cell(len(data) + 1, 3)
@@ -256,6 +241,6 @@ def create_report(fio, dolzhnost, podrazdelenie, data, date_start, date_end, les
     run = p15.add_run('(расшифровка подписи)')
     run.font.superscript = True
 
-    document.save('demo.docx')
+    document.save('report.docx')
 
     return document

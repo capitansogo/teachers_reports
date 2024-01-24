@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h3>Таблица проведенных занятий за выбранный период</h3>
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Название предмета</th>
+            <th>Группа</th>
+            <th>Продолжительность</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for r in result %}
+            <tr>
+                <td>{{ r.0 }}</td>
+                <td>{{ r.1 }}</td>
+                <td>{{ r.2 }}</td>
+                <td>{{ r.3 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-primary" onclick="sendDiplomaLessons()">Сформировать отчет</button>
+</div>
+
+<div class="output-container container mt-5">
+    <h4>Форма добавления дипломных занятий, если они были</h4>
+    <div class="diploma-lesson">
+        <div class="mb-3">
+            <label for="date" class="form-label">Дата занятия</label>
+            <input type="date" class="form-control" name="date[]" id="date">
+        </div>
+        <div class="mb-3">
+            <label for="lesson" class="form-label">Название</label>
+            <input type="text" class="form-control" name="lesson[]" id="lesson">
+        </div>
+        <div class="mb-3">
+            <label for="group" class="form-label">Группа</label>
+            <input type="text" class="form-control" name="group[]" id="group">
+        </div>
+        <div class="mb-3">
+            <label for="duration" class="form-label">Длительность в академических часах</label>
+            <input type="number" class="form-control" name="duration[]" id="duration">
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="addDiplomaLesson()" style="margin-bottom: 10px;">
+            Добавить
+        </button>
+    </div>
+</div>
+<script>
+
+    let hasData = false;
+    let date = [];
+    let lesson = [];
+    let group = [];
+    let duration = [];
+
+
+    function checkInputs() {
+        let check_date = document.getElementById('date');
+        if (check_date.value === '' || check_date.value > {{ end_date }} || check_date.value < {{ end_date }}) {
+            alert('Некорректная дата занятия');
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function addDiplomaLesson() {
+        if (checkInputs()) {
+            hasData = true;
+            const diplomaLesson = document.querySelector('.diploma-lesson');
+            date.push(diplomaLesson.querySelector('input[name="date[]"]').value);
+            lesson.push(diplomaLesson.querySelector('input[name="lesson[]"]').value);
+            group.push(diplomaLesson.querySelector('input[name="group[]"]').value);
+            duration.push(diplomaLesson.querySelector('input[name="duration[]"]').value);
+            displayDiplomaLessons();
+            console.log(date, lesson, group, duration);
+        }
+
+    }
+
+    function sendDiplomaLessons() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'diploma_lessons/');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                let a = document.createElement('a');
+                a.href = 'report.docx';
+                a.download = 'report.docx';
+                a.click();
+                // перенаходим на главную страницу
+                window.location.href = '/';
+            }
+        }
+
+        xhr.send(JSON.stringify({
+            date: date,
+            lesson: lesson,
+            group: group,
+            duration: duration,
+        }));
+    }
+
+    function displayDiplomaLessons() {
+        const outputContainer = document.querySelector('.output-container');
+        const outputTableBody = document.getElementById('output-table-body');
+
+        if (outputTableBody) {
+            // Очищаем таблицу перед добавлением новых данных
+            outputTableBody.innerHTML = '';
+
+            for (let i = 0; i < date.length; i++) {
+                const row = outputTableBody.insertRow();
+                const cellDate = row.insertCell(0);
+                const cellLesson = row.insertCell(1);
+                const cellGroup = row.insertCell(2);
+                const cellDuration = row.insertCell(3);
+
+                cellDate.textContent = date[i];
+                cellLesson.textContent = lesson[i];
+                cellGroup.textContent = group[i];
+                cellDuration.textContent = duration[i];
+            }
+
+        } else {
+            // Создаем таблицу в блоке output-container и заполняем ее данными
+
+            const outputTableTitle = document.createElement('h4');
+            outputTableTitle.textContent = 'Дипломные занятия';
+
+            const outputTable = document.createElement('table');
+            outputTable.classList.add('table');
+            outputTable.classList.add('table-striped');
+            outputTable.classList.add('table-bordered');
+            outputTable.classList.add('table-hover');
+            outputTable.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Название</th>
+                        <th>Группа</th>
+                        <th>Длительность</th>
+                    </tr>
+                </thead>
+                <tbody id="output-table-body">
+                </tbody>
+            `;
+            outputContainer.appendChild(outputTable);
+            displayDiplomaLessons();
+        }
+    }
+    
+</script>
+</body>
+</html>
