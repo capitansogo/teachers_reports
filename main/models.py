@@ -54,26 +54,3 @@ class User(AbstractUser):
         if not self.pk:
             self.set_password(self.password)
         super().save(*args, **kwargs)
-
-
-class Draft(models.Model):
-    id_teacher = models.IntegerField(verbose_name='ID преподавателя', null=True, blank=True, help_text='Введите ID')
-    date = models.DateField(verbose_name='Дата', null=True, blank=True, help_text='Введите дату')
-    lesson = models.CharField(max_length=150, verbose_name='Наименование учебных занятий',
-                              help_text='Введите наименование учебных занятий')
-    group = models.CharField(max_length=150, verbose_name='Группа', help_text='Введите группу')
-    duration = models.IntegerField(verbose_name='Кол-во академ. часов', null=True, blank=True,
-                                   help_text='Введите кол-во академ. часов')
-    info = models.CharField(max_length=150, verbose_name='Примечание', null=True, blank=True,
-                            help_text='Введите примечание')
-
-    class Meta:
-        verbose_name = 'Черновик'
-        verbose_name_plural = 'Черновики'
-        ordering = ['id_teacher']
-
-    def __str__(self):
-        return f'{self.id_teacher} {self.date} {self.lesson} {self.group} {self.duration} {self.info}'
-
-
-
